@@ -1,0 +1,37 @@
+pipeline {
+    agent any
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: "${env.BRANCH_NAME}", url: 'https://github.com/SP22/jenkins_cicd.git'
+            }
+        }
+        stage('Build') {
+            steps {
+                echo "Building the application for ${env.BRANCH_NAME}"
+            }
+        }
+        stage('Test') {
+            steps {
+                echo "Running tests for ${env.BRANCH_NAME}"
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                sh '''
+                docker build -t myapp:${env.BRANCH_NAME} .
+                '''
+            }
+        }
+        stage('Deploy') {
+            steps {
+                script {
+                    def port = (env.BRANCH_NAME == 'main') ? 3000 : 3001
+                    sh """
+                    docker run -d -p ${port}:${port} --name myapp-${env.BRANCH_NAME} myapp:${env.BRANCH_NAME}
+                    """
+                }
+            }
+        }
+    }
+}
