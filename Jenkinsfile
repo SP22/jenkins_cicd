@@ -8,7 +8,7 @@ pipeline {
         }
         stage('Build') {
             steps {
-                echo "Building the application for ${env.BRANCH_NAME}"
+            sh 'scripts/build.sh'
             }
         }
         stage('Test') {
